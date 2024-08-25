@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal-style Website</title>
+    <style>
+        body {
+            background-color: black;
+            color: #00ff00;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        #terminal {
+            display: flex;
+            flex-direction: column;
+        }
+        #output {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        #input-line {
+            display: flex;
+            align-items: center;
+        }
+        #input {
+            background-color: black;
+            color: #00ff00;
+            border: none;
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+            flex-grow: 1;
+            outline: none;
+        }
+        .error {
+            color: #ff0000;
+        }
+    </style>
+</head>
+<body>
+    <div id="terminal">
+        <div id="output"></div>
+        <div id="input-line">
+            <span>&gt;&nbsp;</span>
+            <input type="text" id="input" autofocus>
+        </div>
+    </div>
+
+    <script>
+        const output = document.getElementById('output');
+        const input = document.getElementById('input');
+
+        const menu = `WELCOME TO GLOBAL MULTI TECH LTD
+
+Please choose from the following options to find out more about the services we offer.
+
+1. Professional Accountancy Advice
+
+2. I.T Consultancy & I.T Support Services
+
+3. Authoring services for book outlining, ghostwriting, proof reading, narration and publishing
+
+4. Networking & Investment for Multimedia projects, Technology and Entertainment
+
+5. Further information
+
+Please enter a number (1-5) to select a menu item:`;
+
+        const menuItems = {
+            1: `Professional Accountancy Advice:
+			
+Need help with your finances, so you can get on with growing your business? 
+We offer years of accounting expertise and personalised advice for freelancers, contractors, self-employed and small businesses. To find out more about our bespoke packages, chat with an expert today! You’ll find all the support you need, whenever, wherever you need it! More efficient and better value than your high-street accountant!
+
+For further information, get in touch with our team today!
+
+Email: enquiries@globalmultitech.co.uk`,
+            
+			2: `I.T Consultancy & I.T Support Services:
+			
+We are a cutting-edge technology company specializing in innovative solutions for businesses and individuals. Our team of experts is dedicated to pushing the boundaries of what's possible in the digital world.
+
+For further information, get in touch with our team today!
+
+Email: enquiries@globalmultitech.co.uk`,
+            
+			3: `Authoring services:
+			
+We offer comprehensive authoring services specializing in book development and publication, we bring dedicatation to bringing your literary vision to life, from initial concept to finished product.
+
+Our services include:
+
+* Book outlining and planning
+* Ghostwriting and collaborative writing
+* Professional proofreading and editing
+* Audio narration for audiobooks
+* Publishing assistance and guidance
+
+Whether you're a first-time author or a seasoned writer, we're committed to helping you create and share your story with the world.
+
+For further information, get in touch with our team today!
+
+Email: enquiries@globalmultitech.co.uk`,
+            
+			4: `Networking & Investment for Multimedia projects, Technology and Entertainment:
+			
+Got a next-gen multimedia project in mind? We’ve always got an eye open for innovative new multimedia projects that could be the next BIG thing! Whether it’s an awesome idea for a new tech tool, website, desktop / mobile app, pop track, online show or something else totally unique, we’ve got the networking knowhow and project investment availabilities to make that golden opportunity a success!
+
+For further information, get in touch with our team today!
+
+Email: enquiries@globalmultitech.co.uk`,
+            
+			5: `Further information:
+
+Get in touch with our team today!
+
+Email: enquiries@globalmultitech.co.uk
+
+© 2018-2023 Global Multi Tech Limited. All rights reserved  Company registration No. 11524992. Registered in England and Wales.`
+        };
+
+        function typeText(text, element, speed = 10) {
+            return new Promise((resolve) => {
+                let i = 0;
+                function type() {
+                    if (i < text.length) {
+                        element.innerHTML += text.charAt(i);
+                        i++;
+                        setTimeout(type, speed);
+                    } else {
+                        resolve();
+                    }
+                }
+                type();
+            });
+        }
+
+        async function displayMenu() {
+            output.innerHTML = '';
+            await typeText(menu, output);
+            input.focus();
+        }
+
+        async function processInput(value) {
+            if (value.trim() === '') {
+                await displayError('No input provided. Please enter a number between 1 and 5.');
+            } else if (menuItems[value]) {
+                output.innerHTML = '';
+                await typeText(`> ${value}\n\n${menuItems[value]}\n\n`, output);
+                await typeText('Press Enter to return to the main menu...', output);
+                input.value = '';
+                input.blur();
+                document.addEventListener('keydown', returnToMenu);
+            } else {
+                await displayError(`Invalid input: "${value}". Please enter a number between 1 and 5`);
+            }
+        }
+
+        async function displayError(message) {
+            const errorElement = document.createElement('div');
+            errorElement.className = 'error';
+            output.appendChild(errorElement);
+            await typeText(`> ${input.value}\nError: ${message}\n\n`, errorElement);
+            await displayMenu();
+        }
+
+        async function returnToMenu(event) {
+            if (event.key === 'Enter') {
+                document.removeEventListener('keydown', returnToMenu);
+                await displayMenu();
+                input.value = '';
+                input.focus();
+            }
+        }
+
+        input.addEventListener('keyup', async function(event) {
+            if (event.key === 'Enter') {
+                const value = this.value;
+                this.value = '';
+                await processInput(value);
+            }
+        });
+
+        displayMenu();
+    </script>
+</body>
+</html>
